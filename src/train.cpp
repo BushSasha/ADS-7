@@ -1,74 +1,56 @@
 // Copyright 2021 NNTU-CS
 #include "train.h"
-#include <iostream>
+Train::Train() : opCount(0), headCar(nullptr) {}
 
-Train::Train() : countOp(0), first(nullptr) {}
 Train::~Train() {
-    if (first) {
-        Car* current = first->next;
-        while (current != first) {
-            Car* temp = current;
-            current = current->next;
-            delete temp;
-        }
-        delete first;
-    }
+  if (headCar) {
+    Car* currentCar = headCar;
+    do {
+      Car* tempCar = currentCar->next;
+      delete currentCar;
+      currentCar = tempCar;
+    } while (currentCar != headCar);
+  }
 }
 
-void Train::addCar(bool light) {
-    Car* newCar = new Car;
-    newCar->light = light;
-    if (!first) {
-        newCar->next = newCar;
-        newCar->prev = newCar;
-        first = newCar;
-    } else {
-        newCar->prev = first->prev;
-        newCar->next = first;
-        first->prev->next = newCar;
-        first->prev = newCar;
-    }
+void Train::addCar(bool hasLight) {
+  Car* newCar = new Car{hasLight, nullptr, nullptr};
+  if (!headCar) {
+    headCar = newCar;
+    headCar->next = headCar;
+    headCar->prev = headCar;
+  } else {
+    Car* lastCar = headCar->prev;
+    lastCar->next = newCar;
+    newCar->prev = lastCar;
+    newCar->next = headCar;
+    headCar->prev = newCar;
+  }
 }
 
 int Train::getLength() {
-    countOp = 0;
-    if (!first) return 0;
-    if (!first->light) {
-        first->light = true;
-        countOp++;
+  opCount = 0;
+  Car* currentCar;
+  while (true) {
+    currentCar = headCar;
+    int countedCars = 0;
+    if (!currentCar->light) {
+      currentCar->light = true;
     }
-    Car* start = first;
-    int max_steps = 1;
-    while (true) {
-        int steps = 0;
-        Car* current = start;
-        bool found = false;
-        while (steps < max_steps) {
-            current = current->next;
-            steps++;
-            countOp++;
-            if (current->light) {
-                found = true;
-                break;
-            }
-        }
-        if (found) {
-            if (current == start) {
-                return steps;
-            } else {
-                current->light = false;
-                countOp++; 
-                for (int i = 0; i < steps; ++i) {
-                    current = current->prev;
-                    countOp++;
-                }
-            }
-        } else {
-            max_steps++;
-        }
+    currentCar = currentCar->next;
+    opCount += 2;
+    while (!currentCar->light) {
+      currentCar = currentCar->next;
+      opCount += 2;
+      countedCars++;
     }
+    currentCar->light = false;
+    if (!headCar->light) {
+      return countedCars + 1;
+    }
+  }
 }
 
 int Train::getOpCount() {
-    return countOp;
+  return opCount;
 }
