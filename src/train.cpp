@@ -55,12 +55,13 @@ int Train::getLength() {
         if (found) {
             if (current == start) {
                 return steps;
-            }
-            current->light = false;
-            countOp++;
-            for (int i = 0; i < steps; ++i) {
-                current = current->prev;
-                countOp++;
+            } else {
+                current->light = false;
+                countOp++; 
+                for (int i = 0; i < steps; ++i) {
+                    current = current->prev;
+                    countOp++;
+                }
             }
         } else {
             max_steps++;
