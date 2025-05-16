@@ -35,6 +35,7 @@ int Train::getLength() {
     if (!first) return 0;
     if (!first->light) {
         first->light = true;
+        countOp++;
     }
     Car* start = first;
     int max_steps = 1;
@@ -56,7 +57,8 @@ int Train::getLength() {
                 return steps;
             }
             current->light = false;
-            for (int i = 0; i < steps; i++) {
+            countOp++;
+            for (int i = 0; i < steps; ++i) {
                 current = current->prev;
                 countOp++;
             }
